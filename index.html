@@ -1,15 +1,8 @@
 <!DOCTYPE html>
 <html lang="es" data-theme="dark" style="color-scheme: dark;"><head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Decreto — práctica de imaginación</title>
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="icon" href="icon-192.png">
-<meta name="theme-color" content="#10122A">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Decreto">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&amp;family=Karla:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
@@ -55,6 +48,21 @@
     margin: 0 0 3px;
   }
   header.top p{ color: var(--ink-dim); font-size: 13px; margin: 0; }
+
+  .help-fab{
+    position: absolute; top: 24px; right: 18px;
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 1px solid var(--line); background: var(--bg-card);
+    color: var(--ink-dim); font-family:'Karla',sans-serif; font-weight:700; font-size: 13px;
+    cursor: pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .wrap{ position: relative; }
+  .help-panel{
+    display:none; background: var(--bg-soft); border:1px solid var(--amber-dim);
+    border-radius: 12px; padding: 14px 16px; margin: -10px 0 20px;
+    font-size: 13.5px; line-height:1.55; color: var(--ink);
+  }
+  .help-panel.open{ display:block; }
 
   nav.tabs{
     display:flex; gap: 3px;
@@ -104,6 +112,26 @@
     margin: 0 0 16px;
   }
 
+  .quote-card{
+    background: transparent;
+    border-left: 2px solid var(--amber-dim);
+    padding: 4px 0 4px 16px;
+    margin-bottom: 24px;
+  }
+  .quote-card .quote-text{
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 15.5px;
+    line-height: 1.5;
+    color: var(--ink);
+    margin: 0 0 6px;
+  }
+  .quote-card .quote-source{
+    font-size: 11.5px;
+    color: var(--ink-dim);
+    margin: 0;
+  }
+
   /* Checklist */
   .checklist{ display:flex; flex-direction:column; gap: 10px; margin-bottom: 8px; }
   .check-row{
@@ -126,6 +154,7 @@
   .check-row .label{ flex:1; }
   .check-row .label .title{ font-size: 14.5px; }
   .check-row .label .sub{ font-size: 12px; color: var(--ink-dim); margin-top:2px; }
+  .check-row .go-label{ font-size: 11px; color: var(--violet); white-space: nowrap; flex-shrink: 0; }
 
   /* Botones */
   button.primary{
@@ -148,6 +177,18 @@
   }
   .gym-card h3{ font-family:'Fraunces',serif; font-weight:500; font-size:16.5px; margin: 0 0 8px; }
   .gym-card p{ font-size: 13.5px; color: var(--ink-dim); line-height:1.55; margin: 0 0 14px; }
+
+  .revision-block{ margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .revision-block h4{ font-family:'Fraunces',serif; font-weight:500; font-size:14.5px; margin: 0 0 6px; color: var(--ink); }
+  .revision-hint{ font-size: 12.5px; color: var(--ink-dim); line-height:1.5; margin: 0 0 10px; }
+  .revision-block textarea{
+    width:100%; background: var(--bg); border:1px solid var(--line); border-radius:9px;
+    color: var(--ink); font-family:'Karla',sans-serif; font-size:13.5px; padding:9px 11px; resize:vertical; margin-bottom: 10px;
+  }
+  .revision-actions{ display:flex; gap:8px; }
+  .revision-actions button{ flex:1; }
+  #revision-mic-btn.recording{ border-color: var(--amber); color: var(--amber); }
+  .revision-note{ font-size: 11.5px; color: var(--ink-dim); margin: 8px 0 0; }
 
   /* Desire cards (escenas / sats) */
   .desire-list{ display:flex; flex-direction:column; gap: 12px; }
@@ -259,6 +300,7 @@
     <div class="glyph">✦</div>
     <h1>Decreto</h1>
     <p>Práctica de imaginación consciente — un estado a la vez</p>
+    <button id="help-btn" class="help-fab" aria-label="Ayuda">?</button>
   </header>
 
   <nav class="tabs">
@@ -269,39 +311,52 @@
     <button data-view="diario">Diario</button>
   </nav>
 
+  <div class="help-panel" id="help-panel"></div>
+
   <!-- HOY -->
   <section class="view" id="view-hoy">
     <div class="activity-card">
-      <div class="eyebrow">ACTIVIDAD DE HOY</div>
-      <p class="activity-text" id="today-activity-text">Escuchá el sonido de risas de gente cercana en otra habitación.</p>
-      <button class="tiny done" id="today-activity-btn">Hecha ✓</button>
+      <div class="eyebrow">ACTIVIDAD DE CALENTAMIENTO</div>
+      <p class="activity-text" id="today-activity-text">Imaginá el sabor de un mate o café bien caliente, el primer trago.</p>
+      <button class="tiny" id="today-activity-btn">Marcar como hecha</button>
+    </div>
+
+    <div class="quote-card" id="quote-card">
+      <p class="quote-text" id="quote-text"></p>
+      <p class="quote-source" id="quote-source"></p>
     </div>
 
     <h2 class="section-title">Checklist del día</h2>
-    <div class="checklist" id="checklist"><div class="check-row done"><div class="check-dot">✓</div><div class="label"><div class="title">Mañana</div><div class="sub">Ejercicio de objeto</div></div></div><div class="check-row done"><div class="check-dot">✓</div><div class="label"><div class="title">Durante el día</div><div class="sub">Micro-escenas — 5/3 hoy</div></div></div><div class="check-row"><div class="check-dot"></div><div class="label"><div class="title">Noche</div><div class="sub">Revisión en reversa + voz</div></div></div><div class="check-row done"><div class="check-dot">✓</div><div class="label"><div class="title">SATS</div><div class="sub">Sesión antes de dormir</div></div></div></div>
+    <div class="checklist" id="checklist"><div class="check-row"><div class="check-dot"></div><div class="label"><div class="title">Mañana</div><div class="sub">Ejercicio de objeto</div></div></div><div class="check-row"><div class="check-dot"></div><div class="label"><div class="title">Durante el día</div><div class="sub">Micro-escenas — 0/3 hoy</div></div></div><div class="check-row"><div class="check-dot"></div><div class="label"><div class="title">Noche</div><div class="sub">Revisión en reversa + voz</div></div></div><div class="check-row"><div class="check-dot"></div><div class="label"><div class="title">SATS</div><div class="sub">Sesión antes de dormir</div></div></div></div>
   </section>
 
   <!-- GIMNASIO -->
   <section class="view" id="view-gimnasio">
     <div class="gym-card">
       <h3>Ejercicio de objeto</h3>
-      <p id="object-exercise-text">Agarrá una llave. Sentí los bordes filosos entre los dedos. Cerrá los ojos y reconstruí esa sensación exacta.</p>
-      <button class="tiny done" data-toggle="gymObjeto">Hecho ✓</button>
+      <p id="object-exercise-text">Agarrá una almohada o un cojín. Sentí la suavidad y el peso. Cerrá los ojos y sostenelo igual en la imaginación.</p>
+      <button class="tiny" data-toggle="gymObjeto">Marcar como hecho hoy</button>
     </div>
     <div class="gym-card">
       <h3>Revisión del día en reversa + práctica de voz</h3>
       <p>Antes de dormir: repasá tu día hacia atrás, desde ahora hasta la mañana, en escenas cortas. Después, elegí a alguien cercano e imaginá que te dice tu nombre con su tono exacto.</p>
       <button class="tiny" data-toggle="gymNoche">Marcar como hecho hoy</button>
+
+      <div class="revision-block">
+        <h4>Revisión</h4>
+        <p class="revision-hint">¿Pasó algo hoy que quieras revisar? Contá qué pasó y cómo lo vas a reimaginar distinto antes de dormir.</p>
+        <textarea id="revision-text" rows="4" placeholder="Escribí, o dictalo con el micrófono..."></textarea>
+        <div class="revision-actions">
+          <button class="tiny" id="revision-mic-btn">🎤 Grabar</button>
+          <button class="tiny" id="revision-save-btn">Guardar revisión</button>
+        </div>
+        <p class="revision-note" id="revision-mic-note"></p>
+      </div>
     </div>
   </section>
 
   <!-- ESCENAS RÁPIDAS -->
   <section class="view active" id="view-escenas">
-    <div class="activity-card" style="border-color:var(--line);">
-      <div class="eyebrow">QUÉ ES UNA MICRO-ESCENA</div>
-      <p class="activity-text" style="font-size:14.5px;">No es el guion completo de SATS — es la versión mini: un solo gesto que ya implica que el deseo se cumplió (la voz de Noelle, el boleto en la mano, las llaves en la puerta). No hace falta armar la historia entera.</p>
-      <p class="activity-text" style="font-size:14.5px;">Tocá una tarjeta. Vas a tener 15 segundos: usalos para sentir esa sensación en el cuerpo (no solo pensarla) — una sonrisa, un cosquilleo, el pecho que se afloja. Cuando se cierra sola, seguís tu día. Meta: 3 por día, en cualquier momento — caminando, en la ducha, esperando algo.</p>
-    </div>
     <div class="desire-list" id="quick-list"><div class="desire-card selectable"><h3>Equipo de Noelle (CX)</h3><p class="preview">"Welcome to the team."</p><div class="row-actions"><span class="edit-link" style="pointer-events:none;">15 segundos</span></div></div><div class="desire-card selectable"><h3>Lotería del viernes</h3><p class="preview">El boleto en la mano. "Ganaste."</p><div class="row-actions"><span class="edit-link" style="pointer-events:none;">15 segundos</span></div></div><div class="desire-card selectable"><h3>Casa propia</h3><p class="preview">Las llaves nuevas en mi mano.</p><div class="row-actions"><span class="edit-link" style="pointer-events:none;">15 segundos</span></div></div></div>
   </section>
 
@@ -374,8 +429,12 @@
   <section class="view" id="view-diario">
     <h2 class="section-title" style="margin-top:0;">Racha de días</h2>
     <div id="history-list"></div>
+    <h2 class="section-title">Ejercicios</h2>
+    <div id="exercise-log-list"></div>
     <h2 class="section-title">Sesiones SATS</h2>
     <div id="journal-list"></div>
+    <h2 class="section-title">Revisiones</h2>
+    <div id="revisions-list"></div>
   </section>
 </div>
 
@@ -445,13 +504,24 @@
     }
   ],
   "today": {
-    "date": "2026-09-17",
-    "gymObjeto": true,
+    "date": "2026-09-20",
+    "gymObjeto": false,
     "gymNoche": false,
-    "activityDone": true,
-    "microScenesCount": 6
+    "activityDone": false,
+    "microScenesCount": 0
   },
-  "dailyHistory": [],
+  "dailyHistory": [
+    {
+      "date": "2026-09-17",
+      "gymObjeto": true,
+      "gymNoche": false,
+      "activityDone": true,
+      "microScenesCount": 6,
+      "satsCount": 1
+    }
+  ],
+  "exerciseLog": [],
+  "revisions": [],
   "journal": [
     {
       "id": "j1789673404889",
@@ -505,6 +575,25 @@
     "Agarrá unos auriculares o una pulsera. Sentí la textura y lo liviano que es. Cerrá los ojos y sostenelos en la imaginación.",
     "Agarrá una fruta (manzana, naranja). Sentí la piel y el peso. Cerrá los ojos y reconstruí la sensación exacta.",
     "Agarrá tu cepillo de dientes o algo similar. Sentí el mango y las cerdas. Cerrá los ojos y sostenelo en la imaginación."
+  ];
+
+  // Mezcla de citas textuales cortas (verificadas, con libro de origen) y
+  // principios parafraseados de su enseñanza (sin comillas, no son cita literal).
+  const NEVILLE_QUOTES = [
+    { text: "Assume the feeling of your wish fulfilled.", source: "The Power of Awareness", quote: true },
+    { text: "Feeling is the secret.", source: "Feeling Is the Secret", quote: true },
+    { text: "Imagination is the very gateway of reality.", source: "The Power of Awareness", quote: true },
+    { text: "An assumption, though false, if persisted in, will harden into fact.", source: "The Law and the Promise", quote: true },
+    { text: "Change your conception of yourself and you will automatically change the world in which you live.", source: "The Power of Awareness", quote: true },
+    { text: "The world is yourself pushed out.", source: "charlas de Neville", quote: true },
+    { text: "You are what you feel yourself to be.", source: "enseñanza de Neville", quote: true },
+    { text: "Vivir en el final no es esperar el resultado — es sentir ya que ocurrió.", source: "principio de Neville", quote: false },
+    { text: "No pelees con la duda: volvé, con calma, a la sensación de lo ya cumplido.", source: "principio de Neville", quote: false },
+    { text: "El estado que sostenés con sentimiento, tarde o temprano, se vuelve el hecho que ves afuera.", source: "principio de Neville", quote: false },
+    { text: "No sos vos quien persigue las circunstancias — sos vos quien las decreta.", source: "principio de Neville", quote: false },
+    { text: "La repetición de un mismo estado, noche tras noche, es lo que le da forma al mundo.", source: "principio de Neville", quote: false },
+    { text: "Actuá, en tu imaginación, como si ya lo tuvieras — el cuerpo y el mundo siguen después.", source: "principio de Neville", quote: false },
+    { text: "Lo único que tenés que cambiar es tu concepto de vos misma.", source: "principio de Neville", quote: false }
   ];
 
   function todayStr(){
@@ -575,6 +664,26 @@
   function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
   function escapeAttr(str){ return (str||'').replace(/"/g,'&quot;'); }
 
+  // ---------- ayuda contextual ----------
+  const HELP_TEXTS = {
+    hoy: 'Tu checklist del día, se resetea solo a la medianoche. Cada renglón te lleva a la pestaña donde se hace esa práctica. La "actividad de hoy" cambia sola cada día, de más fácil a más difícil.',
+    gimnasio: 'Ejercicios de entrenamiento de la imaginación, separados de tus deseos — sirven para afilar la facultad en sí. El de objeto rota solo cada día. La revisión + voz se hace antes de dormir, y ahí también podés anotar o dictar una "revisión" de algo del día que quieras reimaginar distinto.',
+    escenas: 'Micro-escenas: la versión mini de tu guion de SATS, un solo gesto que ya implica el deseo cumplido. Tocá una tarjeta, sostené la sensación en el cuerpo unos segundos (no solo la pienses), listo. Meta: 3 por día, en cualquier momento.',
+    sats: 'La sesión guiada completa antes de dormir: preparación, la escena de tu deseo, y decantar hacia la calma. Elegí un deseo y tocá "Empezar sesión". Podés editar el guion de cada uno tocando la tarjeta.',
+    diario: 'Tu racha de días y el registro de cómo se sintió cada práctica — puntaje e intensidad, no para juzgarte, sino para ver tu progreso real en la facultad con el tiempo.'
+  };
+  const helpBtn = document.getElementById('help-btn');
+  const helpPanel = document.getElementById('help-panel');
+  helpBtn.addEventListener('click', ()=>{
+    const current = document.querySelector('nav.tabs button.active').dataset.view;
+    if(helpPanel.classList.contains('open')){
+      helpPanel.classList.remove('open');
+    } else {
+      helpPanel.textContent = HELP_TEXTS[current] || '';
+      helpPanel.classList.add('open');
+    }
+  });
+
   // ---------- tabs ----------
   document.querySelectorAll('nav.tabs button').forEach(btn=>{
     btn.addEventListener('click', ()=>{
@@ -582,6 +691,7 @@
       btn.classList.add('active');
       document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
       document.getElementById('view-' + btn.dataset.view).classList.add('active');
+      helpPanel.classList.remove('open');
       if(btn.dataset.view === 'diario') renderDiario();
       if(btn.dataset.view === 'escenas') renderQuickList();
       if(btn.dataset.view === 'sats') renderDesireList();
@@ -599,44 +709,61 @@
     document.getElementById('object-exercise-text').textContent = OBJECT_EXERCISES[idx];
   }
 
+  function renderQuote(){
+    const idx = dayIndexFor(state.today.date, NEVILLE_QUOTES.length);
+    const q = NEVILLE_QUOTES[idx];
+    document.getElementById('quote-text').textContent = q.quote ? `"${q.text}"` : q.text;
+    document.getElementById('quote-source').textContent = '— ' + q.source;
+  }
+
   function renderHoy(){
     const idx = dayIndexFor(state.today.date, DAILY_ACTIVITIES.length);
     document.getElementById('today-activity-text').textContent = DAILY_ACTIVITIES[idx];
+    renderQuote();
     const actBtn = document.getElementById('today-activity-btn');
     actBtn.textContent = state.today.activityDone ? 'Hecha ✓' : 'Marcar como hecha';
     actBtn.classList.toggle('done', state.today.activityDone);
 
     const satsToday = journalCountForDate(state.today.date) > 0;
     const items = [
-      { key:'gymObjeto', title:'Mañana', sub:'Ejercicio de objeto', done: state.today.gymObjeto, go:'gimnasio' },
-      { key:'micro', title:'Durante el día', sub: `Micro-escenas — ${state.today.microScenesCount}/${MICRO_TARGET} hoy`, done: state.today.microScenesCount >= MICRO_TARGET, go:'escenas' },
-      { key:'gymNoche', title:'Noche', sub:'Revisión en reversa + voz', done: state.today.gymNoche, go:'gimnasio' },
-      { key:'sats', title:'SATS', sub:'Sesión antes de dormir', done: satsToday, go:'sats' }
+      { key:'gymObjeto', title:'Mañana', sub:'Ejercicio de objeto', done: state.today.gymObjeto, go:'gimnasio', goLabel:'Gimnasio' },
+      { key:'micro', title:'Durante el día', sub: `Micro-escenas — ${state.today.microScenesCount}/${MICRO_TARGET} hoy`, done: state.today.microScenesCount >= MICRO_TARGET, go:'escenas', goLabel:'Escenas' },
+      { key:'gymNoche', title:'Noche', sub:'Revisión en reversa + voz', done: state.today.gymNoche, go:'gimnasio', goLabel:'Gimnasio' },
+      { key:'sats', title:'SATS', sub:'Sesión antes de dormir', done: satsToday, go:'sats', goLabel:'SATS' }
     ];
     const list = document.getElementById('checklist');
     list.innerHTML = '';
     items.forEach(it=>{
       const row = document.createElement('div');
       row.className = 'check-row' + (it.done ? ' done' : '');
-      row.innerHTML = `<div class="check-dot">${it.done ? '✓' : ''}</div><div class="label"><div class="title">${it.title}</div><div class="sub">${it.sub}</div></div>`;
+      row.innerHTML = `<div class="check-dot">${it.done ? '✓' : ''}</div><div class="label"><div class="title">${it.title}</div><div class="sub">${it.sub}</div></div><div class="go-label">en ${it.goLabel} ›</div>`;
       row.addEventListener('click', ()=> window.goToTab(it.go));
       list.appendChild(row);
     });
   }
 
   document.getElementById('today-activity-btn').addEventListener('click', ()=>{
-    state.today.activityDone = !state.today.activityDone;
-    persist(); renderHoy();
+    if(!state.today.activityDone){
+      openExerciseLog('activity', 'Actividad de hoy');
+    } else {
+      state.today.activityDone = false;
+      persist(); renderHoy();
+    }
   });
 
   // ---------- GIMNASIO ----------
+  const GYM_TITLES = { gymObjeto: 'Ejercicio de objeto', gymNoche: 'Revisión + voz' };
   document.querySelectorAll('[data-toggle]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const key = btn.dataset.toggle;
-      state.today[key] = !state.today[key];
-      btn.textContent = state.today[key] ? 'Hecho ✓' : 'Marcar como hecho hoy';
-      btn.classList.toggle('done', state.today[key]);
-      persist(); renderHoy();
+      if(!state.today[key]){
+        openExerciseLog(key, GYM_TITLES[key]);
+      } else {
+        state.today[key] = false;
+        btn.textContent = 'Marcar como hecho hoy';
+        btn.classList.remove('done');
+        persist(); renderHoy();
+      }
     });
   });
   function syncGymButtons(){
@@ -646,6 +773,68 @@
       btn.classList.toggle('done', state.today[key]);
     });
   }
+
+  // ---------- REVISIÓN (texto + dictado) ----------
+  (function initRevision(){
+    const micBtn = document.getElementById('revision-mic-btn');
+    const saveBtn = document.getElementById('revision-save-btn');
+    const textarea = document.getElementById('revision-text');
+    const micNote = document.getElementById('revision-mic-note');
+    const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if(!SpeechRecognitionCtor){
+      micBtn.style.display = 'none';
+      micNote.textContent = 'Tu navegador no soporta dictado por voz — escribilo a mano.';
+    } else {
+      let recognition = null;
+      let listening = false;
+      micBtn.addEventListener('click', ()=>{
+        if(listening){
+          recognition && recognition.stop();
+          return;
+        }
+        recognition = new SpeechRecognitionCtor();
+        recognition.lang = 'es-AR';
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.onstart = ()=>{
+          listening = true;
+          micBtn.textContent = '⏹ Detener';
+          micBtn.classList.add('recording');
+          micNote.textContent = 'Escuchando...';
+        };
+        recognition.onresult = (event)=>{
+          let finalText = '';
+          for(let i = event.resultIndex; i < event.results.length; i++){
+            if(event.results[i].isFinal) finalText += event.results[i][0].transcript;
+          }
+          if(finalText.trim()){
+            textarea.value = (textarea.value ? textarea.value.trim() + ' ' : '') + finalText.trim();
+          }
+        };
+        recognition.onerror = ()=>{
+          micNote.textContent = 'No pude escuchar bien — probá de nuevo o escribilo a mano.';
+        };
+        recognition.onend = ()=>{
+          listening = false;
+          micBtn.textContent = '🎤 Grabar';
+          micBtn.classList.remove('recording');
+          if(micNote.textContent === 'Escuchando...') micNote.textContent = '';
+        };
+        recognition.start();
+      });
+    }
+
+    saveBtn.addEventListener('click', ()=>{
+      const text = textarea.value.trim();
+      if(!text) return;
+      state.revisions.unshift({ id: 'r' + Date.now(), date: new Date().toISOString(), text });
+      persist();
+      textarea.value = '';
+      micNote.textContent = 'Guardada.';
+      setTimeout(()=>{ if(micNote.textContent === 'Guardada.') micNote.textContent = ''; }, 2000);
+    });
+  })();
 
   // ---------- ESCENAS RÁPIDAS ----------
   function renderQuickList(){
@@ -713,8 +902,10 @@
           <button class="tiny" style="margin-top:10px;" data-save="${d.id}">Guardar cambios</button>
         </div>
       `;
-      card.querySelector('h3').addEventListener('click', ()=> selectDesire(d.id));
-      card.querySelector('.preview').addEventListener('click', ()=> selectDesire(d.id));
+      card.addEventListener('click', (e)=>{
+        if(e.target.closest('.edit-link') || e.target.closest('.edit-panel')) return;
+        selectDesire(d.id);
+      });
       card.querySelector('[data-edit]').addEventListener('click', (e)=>{
         e.stopPropagation();
         document.getElementById('edit-' + d.id).classList.toggle('open');
@@ -773,6 +964,7 @@
     }
     document.getElementById('session-text').textContent = text;
     document.getElementById('session-hint').textContent = hint || '';
+    document.getElementById('phase-timer').style.visibility = (phase.key === 'decantar') ? 'hidden' : 'visible';
     currentSeconds = phase.seconds;
     document.getElementById('phase-timer').textContent = currentSeconds;
     phaseIntervalId = setInterval(()=>{
@@ -796,10 +988,12 @@
     openLog(desire);
   }
 
-  // ---------- log post-sesión ----------
-  function openLog(desire){
+  // ---------- log post-sesión / post-ejercicio ----------
+  let pendingLog = null; // { type: 'sats', desire } | { type: 'exercise', key, title }
+
+  function openIntensityOverlay(title){
     selectedIntensity = null;
-    document.getElementById('log-desire-name').textContent = desire.title;
+    document.getElementById('log-desire-name').textContent = title;
     document.getElementById('log-note').value = '';
     const row = document.getElementById('intensity-row');
     row.innerHTML = '';
@@ -815,22 +1009,54 @@
     }
     document.getElementById('log-overlay').classList.add('active');
   }
+
+  function openLog(desire){
+    pendingLog = { type: 'sats', desire };
+    openIntensityOverlay(desire.title);
+  }
+
+  function openExerciseLog(key, title){
+    pendingLog = { type: 'exercise', key, title };
+    openIntensityOverlay(title);
+  }
+
   document.getElementById('save-log-btn').addEventListener('click', ()=>{
-    const entry = {
-      id: 'j' + Date.now(),
-      desireId: sessionDesire.id,
-      desireTitle: sessionDesire.title,
-      date: new Date().toISOString(),
-      intensity: selectedIntensity,
-      note: document.getElementById('log-note').value.trim()
-    };
-    state.journal.unshift(entry);
+    if(!pendingLog) return;
+    const note = document.getElementById('log-note').value.trim();
+    if(pendingLog.type === 'sats'){
+      state.journal.unshift({
+        id: 'j' + Date.now(),
+        desireId: pendingLog.desire.id,
+        desireTitle: pendingLog.desire.title,
+        date: new Date().toISOString(),
+        intensity: selectedIntensity,
+        note
+      });
+    } else {
+      state.today[pendingLog.key] = true;
+      state.exerciseLog.unshift({
+        id: 'e' + Date.now(),
+        key: pendingLog.key,
+        title: pendingLog.title,
+        date: new Date().toISOString(),
+        intensity: selectedIntensity,
+        note
+      });
+      syncGymButtons();
+    }
     persist();
     document.getElementById('log-overlay').classList.remove('active');
+    pendingLog = null;
     renderHoy();
   });
   document.getElementById('skip-log-btn').addEventListener('click', ()=>{
+    if(pendingLog && pendingLog.type === 'exercise'){
+      state.today[pendingLog.key] = true;
+      persist();
+      syncGymButtons();
+    }
     document.getElementById('log-overlay').classList.remove('active');
+    pendingLog = null;
     renderHoy();
   });
 
@@ -852,21 +1078,58 @@
     const jl = document.getElementById('journal-list');
     if(state.journal.length === 0){
       jl.innerHTML = '<div class="empty-box">Todavía no registraste ninguna sesión SATS.</div>';
-      return;
+    } else {
+      jl.innerHTML = '';
+      state.journal.forEach(j=>{
+        const d = new Date(j.date);
+        const dateStr = d.toLocaleDateString('es-AR', {day:'numeric', month:'short'}) + ' · ' + d.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'});
+        const div = document.createElement('div');
+        div.className = 'journal-entry';
+        div.innerHTML = `
+          <div class="row1"><span class="desire-name">${escapeHtml(j.desireTitle)}</span><span class="date">${dateStr}</span></div>
+          <div class="intensity">${'●'.repeat(j.intensity||0)}${'○'.repeat(5-(j.intensity||0))}</div>
+          ${j.note ? `<div class="note">${escapeHtml(j.note)}</div>` : ''}
+        `;
+        jl.appendChild(div);
+      });
     }
-    jl.innerHTML = '';
-    state.journal.forEach(j=>{
-      const d = new Date(j.date);
-      const dateStr = d.toLocaleDateString('es-AR', {day:'numeric', month:'short'}) + ' · ' + d.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'});
-      const div = document.createElement('div');
-      div.className = 'journal-entry';
-      div.innerHTML = `
-        <div class="row1"><span class="desire-name">${escapeHtml(j.desireTitle)}</span><span class="date">${dateStr}</span></div>
-        <div class="intensity">${'●'.repeat(j.intensity||0)}${'○'.repeat(5-(j.intensity||0))}</div>
-        ${j.note ? `<div class="note">${escapeHtml(j.note)}</div>` : ''}
-      `;
-      jl.appendChild(div);
-    });
+
+    const el = document.getElementById('exercise-log-list');
+    if(state.exerciseLog.length === 0){
+      el.innerHTML = '<div class="empty-box">Todavía no calificaste ningún ejercicio.</div>';
+    } else {
+      el.innerHTML = '';
+      state.exerciseLog.forEach(e=>{
+        const d = new Date(e.date);
+        const dateStr = d.toLocaleDateString('es-AR', {day:'numeric', month:'short'}) + ' · ' + d.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'});
+        const div = document.createElement('div');
+        div.className = 'journal-entry';
+        div.innerHTML = `
+          <div class="row1"><span class="desire-name">${escapeHtml(e.title)}</span><span class="date">${dateStr}</span></div>
+          <div class="intensity">${'●'.repeat(e.intensity||0)}${'○'.repeat(5-(e.intensity||0))}</div>
+          ${e.note ? `<div class="note">${escapeHtml(e.note)}</div>` : ''}
+        `;
+        el.appendChild(div);
+      });
+    }
+
+    const rl = document.getElementById('revisions-list');
+    if(state.revisions.length === 0){
+      rl.innerHTML = '<div class="empty-box">Todavía no guardaste ninguna revisión.</div>';
+    } else {
+      rl.innerHTML = '';
+      state.revisions.forEach(r=>{
+        const d = new Date(r.date);
+        const dateStr = d.toLocaleDateString('es-AR', {day:'numeric', month:'short'}) + ' · ' + d.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'});
+        const div = document.createElement('div');
+        div.className = 'journal-entry';
+        div.innerHTML = `
+          <div class="row1"><span class="desire-name">Revisión</span><span class="date">${dateStr}</span></div>
+          <div class="note">${escapeHtml(r.text)}</div>
+        `;
+        rl.appendChild(div);
+      });
+    }
   }
 
   // ---------- init ----------
@@ -881,11 +1144,5 @@
     if(changed) persist();
   }
   init();
-
-  if('serviceWorker' in navigator){
-    window.addEventListener('load', ()=>{
-      navigator.serviceWorker.register('sw.js').catch(()=>{});
-    });
-  }
 })();
 </script></body></html>
