@@ -304,9 +304,9 @@
   </header>
 
   <nav class="tabs">
-    <button data-view="hoy" class="">Hoy</button>
+    <button data-view="hoy" class="active">Hoy</button>
     <button data-view="gimnasio" class="">Gimnasio</button>
-    <button data-view="escenas" class="active">Escenas</button>
+    <button data-view="escenas" class="">Escenas</button>
     <button data-view="sats" class="">SATS</button>
     <button data-view="diario">Diario</button>
   </nav>
@@ -314,7 +314,7 @@
   <div class="help-panel" id="help-panel"></div>
 
   <!-- HOY -->
-  <section class="view" id="view-hoy">
+  <section class="view active" id="view-hoy">
     <div class="activity-card">
       <div class="eyebrow">ACTIVIDAD DE CALENTAMIENTO</div>
       <p class="activity-text" id="today-activity-text">Imaginá el sabor de un mate o café bien caliente, el primer trago.</p>
@@ -356,7 +356,7 @@
   </section>
 
   <!-- ESCENAS RÁPIDAS -->
-  <section class="view active" id="view-escenas">
+  <section class="view" id="view-escenas">
     <div class="desire-list" id="quick-list"><div class="desire-card selectable"><h3>Equipo de Noelle (CX)</h3><p class="preview">"Welcome to the team."</p><div class="row-actions"><span class="edit-link" style="pointer-events:none;">15 segundos</span></div></div><div class="desire-card selectable"><h3>Lotería del viernes</h3><p class="preview">El boleto en la mano. "Ganaste."</p><div class="row-actions"><span class="edit-link" style="pointer-events:none;">15 segundos</span></div></div><div class="desire-card selectable"><h3>Casa propia</h3><p class="preview">Las llaves nuevas en mi mano.</p><div class="row-actions"><span class="edit-link" style="pointer-events:none;">15 segundos</span></div></div></div>
   </section>
 
@@ -1133,7 +1133,15 @@
   }
 
   // ---------- init ----------
+  function forceHoyTab(){
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelector('nav.tabs button[data-view="hoy"]').classList.add('active');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-hoy').classList.add('active');
+    helpPanel.classList.remove('open');
+  }
   async function init(){
+    forceHoyTab();
     await initArtifact();
     const changed = rolloverIfNeeded();
     renderHoy();
